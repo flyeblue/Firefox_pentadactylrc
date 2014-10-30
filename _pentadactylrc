@@ -1,0 +1,35 @@
+"hg7127
+
+loadplugins '\.(js|penta)$'
+group user
+
+" vim: set ft=pentadactyl:
+set guioptions=bCrsM
+set complete=lfbs
+set autocomplete=!.
+
+" Finally, flavors like JavaScript, Ruby and Tcl do not support lookbehind at all, even though they do support lookahead.
+" 所以(?<!^) +http://和(?=[^^ ]) +http://行不通
+"set urlseparator=' {5,}\S+|\n+(?!$)(?!\s)|(\s\S*|^\S+)http://'
+"set urlseparator='\s((?!http://)[\s\S])*http://|((?!http://)\S)+http://|\s{5,}((?!http://)\S)+((?!http://)[\s\S])*$|(\s((?!http://)\S)+((?!http://)[\s\S])*\n|\n((?!http://)[\s\S])*((?!http://)\S)+)((?!http://)[\s\S])*$'
+set urlseparator='\s((?!http://)[\s\S])*(?=(https?|ftp)://)|(((?!http://)\S)*[^u\s]rce:|((?!http://)\S)*[^r\s]ce:|((?!http://)\S)*[^c\s]e:|((?!http://)\S)*[^e\s]:|((?!http://)\S)*[^:\s])(?=(https?|ftp)://)|\s{5,}((?!http://)\S)+((?!http://)[\s\S])*$|(\s((?!http://)\S)+((?!http://)[\s\S])*\n|\n((?!http://)[\s\S])*((?!http://)\S)+)((?!http://)[\s\S])*$'
+
+" 齐全的next和previous……需要注意我在 \bnext\b 前加了一个 ^\bnext\b ，因为比如在SciAm网站，经常match到右上角的“What's next”栏目，而不是文章下方的next链接。先match前缀可以解决这个问题。又，suivant和précédent是法语
+set nextpattern='(下|后)一?(页|頁|篇|章|张)|次のページ|次へ','^\bnext\b','\bnext\b','\bsuivant\b','^(>|›)$','^(>>|»)$','^(>|»)','(>|»)$','\bmore\b'
+set previouspattern='(上|前)一?(页|頁|篇|章|张)|前のページ|前へ','^\bprev|previous\b','\bprev|previous\b','\bprécédent\b','^(<|‹)$','^(<<|«)$','^(<|«)','(<|«)$'
+set hintkeys=asdfg;lkjh
+
+" courtesy of wanpeng.xxpp.ca
+" map t -js content.getSelection().toString()!=""?dactyl.execute(":tabopen "+ content.getSelection()):CommandExMode().open("tabopen ")
+" my modified version:
+map t -js str=util.domToString(buffer.focusedFrame.getSelection()); str!=""?dactyl.open(str, {where: dactyl.NEW_TAB}):CommandExMode().open("tabopen ")
+map o -js str=util.domToString(buffer.focusedFrame.getSelection()); str!=""?dactyl.open(str, {where: dactyl.CURRENT_TAB}):CommandExMode().open("open ")
+
+"用ie打开当前页
+map <leader>ie :js io.run("c:\\Program Files\\Internet Explorer\\iexplore.exe", [buffer.URL])<CR>
+"开启选字注音
+"方案一
+map <leader>te -js dactyl.open("shiyi", {where:dactyl.CURRENT_TAB})
+"方案二
+"自动开启选字注音
+autocmd -javascript PageLoad '*' if (["gb18030", "GB2312", "gbk"].indexOf(options["encoding"])+1) dactyl.open("shiyi", {where:dactyl.CURRENT_TAB})
